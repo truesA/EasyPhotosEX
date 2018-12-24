@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">EasyPhotosEX</string>
+    <string name="cameras">相机</string>
+    <string name="albums">相册</string>
 </resources>
