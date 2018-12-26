@@ -1,6 +1,8 @@
 # EasyPhotosEX
 EasyPhotos的简化版 相机 相册 后续增加裁剪功能 开源作者地址https://github.com/HuanTanSheng/EasyPhotos
 
+裁剪独立出来
+
         //单独使用相机
                 EasyPhotos.createCamera(this)
                         .setFileProviderAuthority("com.huantansheng.easyphotos.sample.fileprovider")
