@@ -1,7 +1,10 @@
 package com.lhm.view.easyphotosex;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -18,9 +21,11 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 public class GlideEngine implements ImageEngine {
     //单例
     private static GlideEngine instance = null;
+
     //单例模式，私有构造方法
     private GlideEngine() {
     }
+
     //获取单例
     public static GlideEngine getInstance() {
         if (null == instance) {
