@@ -35,9 +35,17 @@ EasyPhotos的简化版 相机 相册 后续增加裁剪功能 开源作者地址
                         .setFileProviderAuthority("com.huantansheng.easyphotos.sample.fileprovider")
                         .setCount(22)
                         .start(101);
-                        
-                        
-                      /**
+
+             //视频
+             EasyPhotos.createAlbum(this, true, GlideEngine.getInstance())
+                            .setVideo(true)
+                            .setVideoMaxSecond(15)
+                            .setVideoMinSecond(3)
+                            .setFileProviderAuthority("com.lhm.view.easyphotosex.provider")//参数说明：见下方`FileProvider的配置`
+                            .setCount(9)//参数说明：最大可选数，默认1
+                            .start(1)
+
+     /**
      * 启动裁剪
      * @param activity 上下文
      * @param sourceFilePath 需要裁剪图片的绝对路径
