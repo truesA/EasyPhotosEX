@@ -35,5 +35,15 @@ EasyPhotos的简化版 相机 相册 后续增加裁剪功能 开源作者地址
                         .setFileProviderAuthority("com.huantansheng.easyphotos.sample.fileprovider")
                         .setCount(22)
                         .start(101);
+                        
+                        
+                      /**
+     * 启动裁剪
+     * @param activity 上下文
+     * @param sourceFilePath 需要裁剪图片的绝对路径
+     * startUCrop  p(activity: Activity, sourceFilePath: String ):
+     * retutrn cameraScalePath  val cameraScalePath = outFile.absolutePath
+     */
+  
 
 
