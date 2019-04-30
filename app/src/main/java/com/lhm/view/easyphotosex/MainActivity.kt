@@ -19,6 +19,7 @@ import java.io.File
 import android.os.Environment.DIRECTORY_PICTURES
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.support.v4.app.ActivityCompat
+import android.widget.Toast
 import com.yalantis.ucrop.UCropActivity
 
 
@@ -39,7 +40,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun album(view: View) {
-        EasyPhotos.createAlbum(this, false, GlideEngine.getInstance())
+        EasyPhotos.createAlbum(this, true, GlideEngine.getInstance())
+                .setVideo(true)
+
+                .setVideoMaxSecond(15)
+                .setVideoMinSecond(3)
                 .setFileProviderAuthority("com.lhm.view.easyphotosex.provider")//参数说明：见下方`FileProvider的配置`
                 .setCount(9)//参数说明：最大可选数，默认1
                 .start(1)
@@ -49,7 +54,14 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                startUCrop(this, data!!.getStringArrayListExtra(EasyPhotos.RESULT_PATHS)[0])
+                Log.e("camera", data!!.getStringArrayListExtra(EasyPhotos.RESULT_PATHS)[0])
+//
+                if (data!!.getStringArrayListExtra(EasyPhotos.RESULT_PATHS)[0].contains("mp4")){
+                    Toast.makeText(this,"MP4", Toast
+                            .LENGTH_SHORT).show()
+                }else{
+                    startUCrop(this, data!!.getStringArrayListExtra(EasyPhotos.RESULT_PATHS)[0])
+                }
             }
         } else if (requestCode == UCrop.REQUEST_CROP) {
             if (null != data) {
@@ -73,7 +85,7 @@ class MainActivity : AppCompatActivity() {
      * @param aspectRatioY 裁剪图片宽高比
      * @return
      */
-   private fun startUCrop(activity: Activity, sourceFilePath: String
+    private fun startUCrop(activity: Activity, sourceFilePath: String
     ): String {
         val sourceUri = Uri.fromFile(File(sourceFilePath))
         val outDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
@@ -92,19 +104,25 @@ class MainActivity : AppCompatActivity() {
         options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.ALL)
         //是否隐藏底部容器，默认显示
         options.setHideBottomControls(false)
+
+        options.setActiveWidgetColor(ActivityCompat.getColor(activity, R.color.white_easy_photos))
+
         //设置toolbar颜色
-        options.setToolbarColor(ActivityCompat.getColor(activity, R.color.colorPrimary))
+        options.setToolbarColor(ActivityCompat.getColor(activity, R.color.white_easy_photos))
+
+        options.setToolbarWidgetColor(ActivityCompat.getColor(activity, R.color.text_sticker_black_easy_photos))
         //设置状态栏颜色
-        options.setStatusBarColor(ActivityCompat.getColor(activity, R.color.colorPrimary))
+        options.setStatusBarColor(ActivityCompat.getColor(activity, R.color.white_easy_photos))
         //是否能调整裁剪框
         options.setFreeStyleCropEnabled(false)
         //UCrop配置
         uCrop.withOptions(options)
         //设置裁剪图片的宽高比，比如16：9
-//        uCrop.withAspectRatio(aspectRatioX, aspectRatioY)
-        //uCrop.useSourceImageAspectRatio();
+        uCrop.withAspectRatio(1f, 1f)
+//        uCrop.useSourceImageAspectRatio();
         //跳转裁剪页面
         uCrop.start(activity)
+        Log.e("cameraScalePath", cameraScalePath)
         return cameraScalePath
     }
 

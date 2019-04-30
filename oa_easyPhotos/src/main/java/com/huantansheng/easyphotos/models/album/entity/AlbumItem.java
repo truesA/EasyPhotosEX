@@ -24,7 +24,7 @@ public class AlbumItem {
         this.photos.add(imageItem);
     }
 
-    public void addImageItem(int index,Photo imageItem) {
-        this.photos.add(index,imageItem);
+    public void addImageItem(int index, Photo imageItem) {
+        this.photos.add(index, imageItem);
     }
 }

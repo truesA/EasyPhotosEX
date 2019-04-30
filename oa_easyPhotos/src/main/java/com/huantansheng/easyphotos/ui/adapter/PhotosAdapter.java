@@ -1,6 +1,8 @@
 package com.huantansheng.easyphotos.ui.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,7 @@ import com.huantansheng.easyphotos.models.album.entity.Photo;
 import com.huantansheng.easyphotos.result.Result;
 import com.huantansheng.easyphotos.setting.Setting;
 import com.huantansheng.easyphotos.ui.widget.PressedImageView;
+import com.huantansheng.easyphotos.utils.media.DurationUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -22,10 +25,10 @@ import java.util.ArrayList;
  * 专辑相册适配器
  * Created by huan on 2017/10/23.
  */
-
 public class PhotosAdapter extends RecyclerView.Adapter {
     private static final int TYPE_AD = 0;
-    private static final int TYPE_ALBUM_ITEMS = 1;
+    private static final int TYPE_CAMERA = 1;
+    private static final int TYPE_ALBUM_ITEMS = 2;
 
     private ArrayList<Object> dataList;
     private LayoutInflater mInflater;
@@ -47,35 +50,41 @@ public class PhotosAdapter extends RecyclerView.Adapter {
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_AD:
 //                return new AdViewHolder(mInflater.inflate(R.layout.item_ad_easy_photos, parent, false));
+            case TYPE_CAMERA:
+                return new CameraViewHolder(mInflater.inflate(R.layout.item_camera_easy_photos, parent, false));
             default:
                 return new PhotoViewHolder(mInflater.inflate(R.layout.item_rv_photos_easy_photos, parent, false));
         }
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
         final int p = position;
         if (holder instanceof PhotoViewHolder) {
             final Photo item = (Photo) dataList.get(p);
+            if (item == null) return;
             updateSelector(((PhotoViewHolder) holder).tvSelector, item.selected, item, p);
             String path = item.path;
             String type = item.type;
-            if (Setting.showGif) {
-                if (path.endsWith(Type.GIF) || type.endsWith(Type.GIF)) {
-                    Setting.imageEngine.loadGifAsBitmap(((PhotoViewHolder) holder).ivPhoto.getContext(), path, ((PhotoViewHolder) holder).ivPhoto);
-                    ((PhotoViewHolder) holder).tvGif.setVisibility(View.VISIBLE);
-                } else {
-                    Setting.imageEngine.loadPhoto(((PhotoViewHolder) holder).ivPhoto.getContext(), path, ((PhotoViewHolder) holder).ivPhoto);
-                    ((PhotoViewHolder) holder).tvGif.setVisibility(View.GONE);
-                }
+            long duration = item.duration;
+            final boolean isGif = path.endsWith(Type.GIF) || type.endsWith(Type.GIF);
+            if (Setting.showGif && isGif) {
+                Setting.imageEngine.loadGifAsBitmap(((PhotoViewHolder) holder).ivPhoto.getContext(), path, ((PhotoViewHolder) holder).ivPhoto);
+                ((PhotoViewHolder) holder).tvType.setText(R.string.gif_easy_photos);
+                ((PhotoViewHolder) holder).tvType.setVisibility(View.VISIBLE);
+            } else if (Setting.showVideo && type.contains(Type.VIDEO)) {
+                Setting.imageEngine.loadPhoto(((PhotoViewHolder) holder).ivPhoto.getContext(), path, ((PhotoViewHolder) holder).ivPhoto);
+                ((PhotoViewHolder) holder).tvType.setText(DurationUtils.format(duration));
+                ((PhotoViewHolder) holder).tvType.setVisibility(View.VISIBLE);
             } else {
                 Setting.imageEngine.loadPhoto(((PhotoViewHolder) holder).ivPhoto.getContext(), path, ((PhotoViewHolder) holder).ivPhoto);
-                ((PhotoViewHolder) holder).tvGif.setVisibility(View.GONE);
+                ((PhotoViewHolder) holder).tvType.setVisibility(View.GONE);
             }
 
             ((PhotoViewHolder) holder).vSelector.setVisibility(View.VISIBLE);
@@ -85,6 +94,9 @@ public class PhotosAdapter extends RecyclerView.Adapter {
                 public void onClick(View v) {
                     int realPosition = p;
                     if (Setting.hasPhotosAd()) {
+                        realPosition--;
+                    }
+                    if (Setting.isShowCamera && !Setting.isBottomRightCamera()) {
                         realPosition--;
                     }
                     listener.onPhotoClick(p, realPosition);
@@ -109,12 +121,17 @@ public class PhotosAdapter extends RecyclerView.Adapter {
                             notifyDataSetChanged();
                             return;
                         }
-                        listener.onSelectorOutOfMax();
+                        listener.onSelectorOutOfMax(null);
                         return;
                     }
                     item.selected = !item.selected;
                     if (item.selected) {
-                        Result.addPhoto(item);
+                        int res = Result.addPhoto(item);
+                        if (res != 0) {
+                            listener.onSelectorOutOfMax(res);
+                            item.selected = false;
+                            return;
+                        }
                         ((PhotoViewHolder) holder).tvSelector.setBackgroundResource(R.drawable.bg_select_true_easy_photos);
                         ((PhotoViewHolder) holder).tvSelector.setText(String.valueOf(Result.count()));
                         if (Result.count() == Setting.count) {
@@ -156,6 +173,15 @@ public class PhotosAdapter extends RecyclerView.Adapter {
 //                }
 //            }
 //        }
+
+        if (holder instanceof CameraViewHolder) {
+            ((CameraViewHolder) holder).flCamera.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onCameraClick();
+                }
+            });
+        }
     }
 
     private void singleSelector(Photo photo, int position) {
@@ -207,32 +233,53 @@ public class PhotosAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (0 == position && Setting.hasPhotosAd()) {
-            return TYPE_AD;
+        if (0 == position) {
+            if (Setting.hasPhotosAd()) {
+                return TYPE_AD;
+            }
+            if (Setting.isShowCamera && !Setting.isBottomRightCamera()) {
+                return TYPE_CAMERA;
+            }
+        }
+        if (1 == position && !Setting.isBottomRightCamera()) {
+            if (Setting.hasPhotosAd() && Setting.isShowCamera) {
+                return TYPE_CAMERA;
+            }
         }
         return TYPE_ALBUM_ITEMS;
     }
 
     public interface OnClickListener {
+        void onCameraClick();
+
         void onPhotoClick(int position, int realPosition);
 
-        void onSelectorOutOfMax();
+        void onSelectorOutOfMax(@Nullable Integer result);
 
         void onSelectorChanged();
     }
 
+    private class CameraViewHolder extends RecyclerView.ViewHolder {
+        final FrameLayout flCamera;
+
+        CameraViewHolder(View itemView) {
+            super(itemView);
+            this.flCamera = itemView.findViewById(R.id.fl_camera);
+        }
+    }
+
     public class PhotoViewHolder extends RecyclerView.ViewHolder {
-        PressedImageView ivPhoto;
-        TextView tvSelector;
-        View vSelector;
-        TextView tvGif;
+        final PressedImageView ivPhoto;
+        final TextView tvSelector;
+        final View vSelector;
+        final TextView tvType;
 
         PhotoViewHolder(View itemView) {
             super(itemView);
-            this.ivPhoto = (PressedImageView) itemView.findViewById(R.id.iv_photo);
-            this.tvSelector = (TextView) itemView.findViewById(R.id.tv_selector);
+            this.ivPhoto = itemView.findViewById(R.id.iv_photo);
+            this.tvSelector = itemView.findViewById(R.id.tv_selector);
             this.vSelector = itemView.findViewById(R.id.v_selector);
-            this.tvGif = (TextView) itemView.findViewById(R.id.tv_gif);
+            this.tvType = itemView.findViewById(R.id.tv_type);
         }
     }
 }

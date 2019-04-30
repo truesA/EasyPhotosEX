@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -264,31 +265,29 @@ public class PreviewActivity extends AppCompatActivity implements PreviewPhotosA
         snapHelper.attachToRecyclerView(rvPhotos);
         rvPhotos.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState != RecyclerView.SCROLL_STATE_IDLE) {
+
+                View view = snapHelper.findSnapView(lm);
+                if (view == null) {
                     return;
                 }
-                int leftViewPosition = snapHelper.findTargetSnapPosition(lm, 1, rvPhotos.getHeight() / 2);
-                int rightViewPosition = snapHelper.findTargetSnapPosition(lm, rvPhotos.getWidth() - 1, rvPhotos.getHeight() / 2);
-                if (leftViewPosition == rightViewPosition) {
-                    if (lastPosition == leftViewPosition - 1) {
-                        return;
-                    }
-                    previewFragment.setSelectedPosition(-1);
-                    tvNumber.setText(getString(R.string.preview_current_number_easy_photos, leftViewPosition, photos.size()));
-                    lastPosition = leftViewPosition - 1;
-                    View view = snapHelper.findSnapView(lm);
-                    toggleSelector();
-                    if (null == view) {
-                        return;
-                    }
-                    PreviewPhotosAdapter.PreviewPhotosViewHolder viewHolder = (PreviewPhotosAdapter.PreviewPhotosViewHolder) rvPhotos.getChildViewHolder(view);
-                    if (viewHolder == null || viewHolder.ivPhoto == null) {
-                        return;
-                    }
-                    if (viewHolder.ivPhoto.getScale() != 1f)
-                        viewHolder.ivPhoto.setScale(1f, true);
+                int position = lm.getPosition(view);
+                if (lastPosition == position) {
+                    return;
+                }
+                lastPosition = position;
+                previewFragment.setSelectedPosition(-1);
+                tvNumber.setText(getString(R.string.preview_current_number_easy_photos, lastPosition + 1, photos.size()));
+                toggleSelector();
+                PreviewPhotosAdapter.PreviewPhotosViewHolder holder = (PreviewPhotosAdapter.PreviewPhotosViewHolder) rvPhotos.getChildViewHolder(view);
+                if (holder == null || holder.ivPhoto == null) {
+                    return;
+                }
+                if (holder.ivPhoto.getScale() != 1f) {
+                    holder.ivPhoto.setScale(1f, true);
+
+
                 }
             }
         });
@@ -370,12 +369,24 @@ public class PreviewActivity extends AppCompatActivity implements PreviewPhotosA
                 toggleSelector();
                 return;
             }
-            Toast.makeText(this, getString(R.string.selector_reach_max_image_hint_easy_photos, Setting.count), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.selector_reach_max_hint_easy_photos, Setting.count), Toast.LENGTH_SHORT).show();
             return;
         }
         item.selected = !item.selected;
         if (item.selected) {
-            Result.addPhoto(item);
+            int res = Result.addPhoto(item);
+            if (res != 0) {
+                item.selected = false;
+                switch (res) {
+                    case -1:
+                        Toast.makeText(this, getString(R.string.selector_reach_max_image_hint_easy_photos, Setting.pictureCount), Toast.LENGTH_SHORT).show();
+                        break;
+                    case -2:
+                        Toast.makeText(this, getString(R.string.selector_reach_max_video_hint_easy_photos, Setting.videoCount), Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                return;
+            }
             if (Result.count() == Setting.count) {
                 unable = true;
             }

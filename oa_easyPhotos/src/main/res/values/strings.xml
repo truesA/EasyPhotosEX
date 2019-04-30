@@ -3,6 +3,10 @@
 
     <string name="selector_folder_all_easy_photos">所有图片</string>
 
+    <string name="selector_folder_all_video_photo_easy_photos">图片和视频</string>
+
+    <string name="selector_folder_video_easy_photos">所有视频</string>
+
     <string name="selector_easy_photos">选择</string>
 
     <!--http://stackoverflow.com/questions/17502824/whats-wrong-with-this-format-string-->
@@ -10,7 +14,11 @@
 
     <string name="selector_preview_easy_photos">预览</string>
 
+    <string name="selector_reach_max_hint_easy_photos">最多只能选择%d张图片或视频</string>
+
     <string name="selector_reach_max_image_hint_easy_photos">最多只能选择%d张图片</string>
+
+    <string name="selector_reach_max_video_hint_easy_photos">最多只能选择%d个视频</string>
 
     <string name="msg_no_camera_easy_photos">无法启动相机！</string>
 
@@ -57,6 +65,8 @@
     <string name="select_puzzle_photos">请选择2 \- 9张照片</string>
 
     <string name="gif_easy_photos">动图</string>
+
+    <string name="video_easy_photos">视频</string>
 
 
 </resources>

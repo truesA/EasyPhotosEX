@@ -12,6 +12,7 @@ import com.huantansheng.easyphotos.constant.Type;
 import com.huantansheng.easyphotos.result.Result;
 import com.huantansheng.easyphotos.setting.Setting;
 import com.huantansheng.easyphotos.ui.widget.PressedImageView;
+import com.huantansheng.easyphotos.utils.media.DurationUtils;
 
 /**
  * 预览所有选中图片集合的适配器
@@ -39,17 +40,20 @@ public class PreviewPhotosFragmentAdapter extends RecyclerView.Adapter<PreviewPh
         final int p = position;
         String path = Result.getPhotoPath(position);
         String type = Result.getPhotoType(position);
-        if (Setting.showGif) {
-            if (path.endsWith(Type.GIF) || type.endsWith(Type.GIF)) {
-                Setting.imageEngine.loadGifAsBitmap(holder.ivPhoto.getContext(), path, holder.ivPhoto);
-                holder.tvGif.setVisibility(View.VISIBLE);
-            } else {
-                Setting.imageEngine.loadPhoto(holder.ivPhoto.getContext(), path, holder.ivPhoto);
-                holder.tvGif.setVisibility(View.GONE);
-            }
+        long duration = Result.getPhotoDuration(position);
+
+        final boolean isGif = path.endsWith(Type.GIF) || type.endsWith(Type.GIF);
+        if (Setting.showGif && isGif) {
+            Setting.imageEngine.loadGifAsBitmap(holder.ivPhoto.getContext(), path, holder.ivPhoto);
+            holder.tvType.setText(R.string.gif_easy_photos);
+            holder.tvType.setVisibility(View.VISIBLE);
+        } else if (Setting.showVideo && type.contains(Type.VIDEO)) {
+            Setting.imageEngine.loadPhoto(holder.ivPhoto.getContext(), path, holder.ivPhoto);
+            holder.tvType.setText(DurationUtils.format(duration));
+            holder.tvType.setVisibility(View.VISIBLE);
         } else {
             Setting.imageEngine.loadPhoto(holder.ivPhoto.getContext(), path, holder.ivPhoto);
-            holder.tvGif.setVisibility(View.GONE);
+            holder.tvType.setVisibility(View.GONE);
         }
 
         if (checkedPosition == p) {
@@ -81,13 +85,13 @@ public class PreviewPhotosFragmentAdapter extends RecyclerView.Adapter<PreviewPh
     class PreviewPhotoVH extends RecyclerView.ViewHolder {
         PressedImageView ivPhoto;
         View frame;
-        TextView tvGif;
+        TextView tvType;
 
         public PreviewPhotoVH(View itemView) {
             super(itemView);
             ivPhoto = (PressedImageView) itemView.findViewById(R.id.iv_photo);
             frame = itemView.findViewById(R.id.v_selector);
-            tvGif = (TextView) itemView.findViewById(R.id.tv_gif);
+            tvType = (TextView) itemView.findViewById(R.id.tv_type);
         }
     }
 
