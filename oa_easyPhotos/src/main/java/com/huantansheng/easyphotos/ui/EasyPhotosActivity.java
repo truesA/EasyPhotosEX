@@ -507,6 +507,10 @@ public class EasyPhotosActivity extends AppCompatActivity implements AlbumItemsA
             if (Setting.hasPhotosAd()) index = 1;
             photoList.add(index, null);
         }
+        if (Setting.showVideoView) {
+            if (Setting.hasPhotosAd()) index = 1;
+            photoList.add(index, null);
+        }
         photosAdapter = new PhotosAdapter(this, photoList, this);
 
         gridLayoutManager = new GridLayoutManager(this, columns);
@@ -716,6 +720,10 @@ public class EasyPhotosActivity extends AppCompatActivity implements AlbumItemsA
             if (Setting.hasPhotosAd()) index = 1;
             photoList.add(index, null);
         }
+        if (Setting.showVideoView && Setting.isShowVideoView()) {
+            if (Setting.hasPhotosAd()) index = 1;
+            photoList.add(index, null);
+        }
         photosAdapter.change();
         rvPhotos.scrollToPosition(0);
     }
@@ -746,6 +754,26 @@ public class EasyPhotosActivity extends AppCompatActivity implements AlbumItemsA
     public void onCameraClick() {
         launchCamera(Code.REQUEST_CAMERA);
     }
+
+    @Override
+    public void onVideoClick() {
+//        Toast.makeText(this, "去录制视频", Toast.LENGTH_SHORT).show();
+        if (Setting.videoListener != null) {
+            Setting.videoListener.toPlayVideo();
+        }
+    }
+
+
+
+//    private  OnClickToVideoListener videoListener;
+
+    public interface OnClickToVideoListener {
+        void toPlayVideo();
+    }
+
+//    public void setOnClickToVideoListener(OnClickToVideoListener listener) {
+//        this.videoListener = listener;
+//    }
 
     @Override
     public void onPhotoClick(int position, int realPosition) {

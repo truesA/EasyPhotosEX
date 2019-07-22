@@ -18,7 +18,6 @@ import com.huantansheng.easyphotos.setting.Setting;
 import com.huantansheng.easyphotos.ui.widget.PressedImageView;
 import com.huantansheng.easyphotos.utils.media.DurationUtils;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -29,6 +28,7 @@ public class PhotosAdapter extends RecyclerView.Adapter {
     private static final int TYPE_AD = 0;
     private static final int TYPE_CAMERA = 1;
     private static final int TYPE_ALBUM_ITEMS = 2;
+    private static final int TYPE_VIDEO = 3;
 
     private ArrayList<Object> dataList;
     private LayoutInflater mInflater;
@@ -58,6 +58,8 @@ public class PhotosAdapter extends RecyclerView.Adapter {
 //                return new AdViewHolder(mInflater.inflate(R.layout.item_ad_easy_photos, parent, false));
             case TYPE_CAMERA:
                 return new CameraViewHolder(mInflater.inflate(R.layout.item_camera_easy_photos, parent, false));
+            case TYPE_VIDEO:
+                return new VideoViewHolder(mInflater.inflate(R.layout.item_video_easy_photos, parent, false));
             default:
                 return new PhotoViewHolder(mInflater.inflate(R.layout.item_rv_photos_easy_photos, parent, false));
         }
@@ -97,6 +99,9 @@ public class PhotosAdapter extends RecyclerView.Adapter {
                         realPosition--;
                     }
                     if (Setting.isShowCamera && !Setting.isBottomRightCamera()) {
+                        realPosition--;
+                    }
+                    if (Setting.showVideoView && Setting.isShowVideoView()) {
                         realPosition--;
                     }
                     listener.onPhotoClick(p, realPosition);
@@ -182,6 +187,14 @@ public class PhotosAdapter extends RecyclerView.Adapter {
                 }
             });
         }
+        if (holder instanceof VideoViewHolder) {
+            ((VideoViewHolder) holder).flVideo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onVideoClick();
+                }
+            });
+        }
     }
 
     private void singleSelector(Photo photo, int position) {
@@ -240,6 +253,9 @@ public class PhotosAdapter extends RecyclerView.Adapter {
             if (Setting.isShowCamera && !Setting.isBottomRightCamera()) {
                 return TYPE_CAMERA;
             }
+            if (Setting.showVideoView && Setting.isShowVideoView()) {
+                return TYPE_VIDEO;
+            }
         }
         if (1 == position && !Setting.isBottomRightCamera()) {
             if (Setting.hasPhotosAd() && Setting.isShowCamera) {
@@ -251,6 +267,8 @@ public class PhotosAdapter extends RecyclerView.Adapter {
 
     public interface OnClickListener {
         void onCameraClick();
+
+        void onVideoClick();
 
         void onPhotoClick(int position, int realPosition);
 
@@ -265,6 +283,15 @@ public class PhotosAdapter extends RecyclerView.Adapter {
         CameraViewHolder(View itemView) {
             super(itemView);
             this.flCamera = itemView.findViewById(R.id.fl_camera);
+        }
+    }
+
+    private class VideoViewHolder extends RecyclerView.ViewHolder {
+        final FrameLayout flVideo;
+
+        VideoViewHolder(View itemView) {
+            super(itemView);
+            this.flVideo = itemView.findViewById(R.id.fl_video);
         }
     }
 

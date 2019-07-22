@@ -20,6 +20,8 @@ import android.os.Environment.DIRECTORY_PICTURES
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.support.v4.app.ActivityCompat
 import android.widget.Toast
+import com.huantansheng.easyphotos.setting.Setting
+import com.huantansheng.easyphotos.setting.Setting.LIST_FIRST
 import com.yalantis.ucrop.UCropActivity
 
 
@@ -42,9 +44,23 @@ class MainActivity : AppCompatActivity() {
     fun album(view: View) {
         EasyPhotos.createAlbum(this, true, GlideEngine.getInstance())
                 .setVideo(true)
-
+                .setCameraLocation(Setting.LIST_FIRST)
                 .setVideoMaxSecond(15)
                 .setVideoMinSecond(3)
+                .setFileProviderAuthority("com.lhm.view.easyphotosex.provider")//参数说明：见下方`FileProvider的配置`
+                .setCount(9)//参数说明：最大可选数，默认1
+                .start(1)
+    }
+
+    fun albumVideo(view: View) {
+        EasyPhotos.createAlbum(this, false, GlideEngine.getInstance())
+                .setVideoListener {
+                    Toast.makeText(this, "去录制视频", Toast.LENGTH_SHORT).show()
+                }
+                .onlyVideo(true)
+                .setVideo(true)
+//                .setVideoMaxSecond(15)
+//                .setVideoMinSecond(3)
                 .setFileProviderAuthority("com.lhm.view.easyphotosex.provider")//参数说明：见下方`FileProvider的配置`
                 .setCount(9)//参数说明：最大可选数，默认1
                 .start(1)
@@ -56,10 +72,10 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 Log.e("camera", data!!.getStringArrayListExtra(EasyPhotos.RESULT_PATHS)[0])
 //
-                if (data!!.getStringArrayListExtra(EasyPhotos.RESULT_PATHS)[0].contains("mp4")){
-                    Toast.makeText(this,"MP4", Toast
+                if (data!!.getStringArrayListExtra(EasyPhotos.RESULT_PATHS)[0].contains("mp4")) {
+                    Toast.makeText(this, "MP4", Toast
                             .LENGTH_SHORT).show()
-                }else{
+                } else {
                     startUCrop(this, data!!.getStringArrayListExtra(EasyPhotos.RESULT_PATHS)[0])
                 }
             }

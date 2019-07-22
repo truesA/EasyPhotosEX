@@ -6,6 +6,7 @@ import android.view.View;
 import com.huantansheng.easyphotos.constant.Type;
 import com.huantansheng.easyphotos.engine.ImageEngine;
 import com.huantansheng.easyphotos.models.album.entity.Photo;
+import com.huantansheng.easyphotos.ui.EasyPhotosActivity;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,6 +22,8 @@ import java.util.List;
 public class Setting {
     public static int minWidth = 1;
     public static int minHeight = 1;
+    public static int maxWidth = 10000; //长图
+    public static int maxHeight = 20000; //长图 2500可以认为是不是长图
     public static long minSize = 1;
     public static int count = 1;
     public static int pictureCount = -1;
@@ -42,6 +45,7 @@ public class Setting {
     public static List<String> filterTypes = new ArrayList<>();
     public static boolean showGif = false;
     public static boolean showVideo = false;
+    public static boolean showVideoView = false;
     public static boolean showCleanMenu = true;
     public static long videoMinSecond = 0L;
     public static long videoMaxSecond = Long.MAX_VALUE;
@@ -49,6 +53,8 @@ public class Setting {
 
     public static final int LIST_FIRST = 0;
     public static final int BOTTOM_RIGHT = 1;
+
+    public static EasyPhotosActivity.OnClickToVideoListener videoListener;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {LIST_FIRST, BOTTOM_RIGHT})
@@ -79,6 +85,7 @@ public class Setting {
         filterTypes = new ArrayList<>();
         showGif = false;
         showVideo = false;
+        showVideoView = false;
         showCleanMenu = true;
         videoMinSecond = 0L;
         videoMaxSecond = Long.MAX_VALUE;
@@ -94,7 +101,7 @@ public class Setting {
         return false;
     }
 
-    public static boolean isOnlyVideo() {
+    public static boolean isShowVideoView() {
         return filterTypes.size() == 1 && filterTypes.get(0).equals(Type.VIDEO);
     }
 

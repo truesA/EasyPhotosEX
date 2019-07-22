@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.huantansheng.easyphotos.R;
 import com.huantansheng.easyphotos.constant.Type;
@@ -132,7 +133,7 @@ public class AlbumModel {
 
                 boolean isVideo = type.contains(Type.VIDEO);// 是否是视频
 
-                if (Setting.isOnlyVideo() && !isVideo) {
+                if (Setting.isShowVideoView() && !isVideo) {
                     continue;
                 }
                 if (!Setting.filterTypes.isEmpty() && !Setting.isFilter(type)) {
@@ -160,6 +161,11 @@ public class AlbumModel {
                     width = cursor.getInt(WidthCol);
                     height = cursor.getInt(HeightCol);
                     if (width < Setting.minWidth || height < Setting.minHeight) {
+                        continue;
+                    }
+                    //限制长图
+                    if (width > Setting.maxWidth || height > Setting.maxHeight) {
+                        Log.e("限制长图", "限制长图");
                         continue;
                     }
                 }
@@ -209,7 +215,7 @@ public class AlbumModel {
      */
     public String getAllAlbumName(Context context) {
         String albumItem_all_name = context.getString(R.string.selector_folder_all_video_photo_easy_photos);
-        if (Setting.isOnlyVideo()) {
+        if (Setting.isShowVideoView()) {
             albumItem_all_name = context.getString(R.string.selector_folder_video_easy_photos);
         } else if (!Setting.showVideo) {
             //不显示视频

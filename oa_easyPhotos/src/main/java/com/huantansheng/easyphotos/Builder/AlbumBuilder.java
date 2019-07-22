@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.view.View;
 
 import com.huantansheng.easyphotos.callback.SelectCallback;
 import com.huantansheng.easyphotos.constant.Type;
@@ -266,6 +265,29 @@ public class AlbumBuilder {
     }
 
     /**
+     * 设置显示照片的最大高度
+     *
+     * @param maxHeight 显示照片的最大高度，单位Px
+     * @return AlbumBuilder
+     */
+    public AlbumBuilder setMaxHeight(int maxHeight) {
+        Setting.maxHeight = maxHeight;
+        return AlbumBuilder.this;
+    }
+
+    /**
+     * 设置显示照片的最大宽度
+     *
+     * @param maxWidth 照片的最大宽度，单位Px
+     * @return AlbumBuilder
+     */
+    public AlbumBuilder setMaxWidth(int maxWidth) {
+        Setting.maxWidth = maxWidth;
+        return AlbumBuilder.this;
+    }
+
+
+    /**
      * 设置默认选择图片集合
      *
      * @param selectedPhotos 默认选择图片集合
@@ -335,6 +357,7 @@ public class AlbumBuilder {
      */
     @Deprecated
     public AlbumBuilder onlyVideo(boolean shouldShow) {
+        Setting.showVideoView = shouldShow;
         return filter(Type.VIDEO);
     }
 
@@ -425,7 +448,7 @@ public class AlbumBuilder {
                 Setting.showVideo = true;
             }
         }
-        if (Setting.isOnlyVideo()) {
+        if (Setting.isShowVideoView()) {
             //只选择视频 暂不支持拍照/拼图等
             Setting.isShowCamera = false;
             Setting.showPuzzleMenu = false;
@@ -445,6 +468,11 @@ public class AlbumBuilder {
     public void start(int requestCode) {
         setSettingParams();
         launchEasyPhotosActivity(requestCode);
+    }
+
+    public AlbumBuilder setVideoListener(EasyPhotosActivity.OnClickToVideoListener videoListener) {
+        Setting.videoListener = videoListener;
+        return AlbumBuilder.this;
     }
 
     /**
