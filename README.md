@@ -44,6 +44,19 @@ EasyPhotos的简化版 相机 相册 后续增加裁剪功能 开源作者地址
                             .setFileProviderAuthority("com.lhm.view.easyphotosex.provider")//参数说明：见下方`FileProvider的配置`
                             .setCount(9)//参数说明：最大可选数，默认1
                             .start(1)
+                            
+      //新增视频选择 回调外置的录制                       
+             EasyPhotos.createAlbum(this, false, GlideEngine.getInstance())
+                .setVideoListener {
+                    Toast.makeText(this, "去录制视频", Toast.LENGTH_SHORT).show()
+                }
+                .onlyVideo(true)
+                .setVideo(true)
+                .setVideoMaxSecond(15)
+                .setVideoMinSecond(3)
+                .setFileProviderAuthority("com.lhm.view.easyphotosex.provider")//参数说明：见下方`FileProvider的配置`
+                .setCount(9)//参数说明：最大可选数，默认1
+                .start(1)
 
      /**
      * 启动裁剪
@@ -53,17 +66,6 @@ EasyPhotos的简化版 相机 相册 后续增加裁剪功能 开源作者地址
      * retutrn cameraScalePath  val cameraScalePath = outFile.absolutePath
      */
   
-     新增视频选择 回调外置的录制
-      EasyPhotos.createAlbum(this, false, GlideEngine.getInstance())
-                .setVideoListener {
-                    Toast.makeText(this, "去录制视频", Toast.LENGTH_SHORT).show()
-                }
-                .onlyVideo(true)
-                .setVideo(true)
-//                .setVideoMaxSecond(15)
-//                .setVideoMinSecond(3)
-                .setFileProviderAuthority("com.lhm.view.easyphotosex.provider")//参数说明：见下方`FileProvider的配置`
-                .setCount(9)//参数说明：最大可选数，默认1
-                .start(1)
+    
 
 
